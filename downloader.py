@@ -7,35 +7,35 @@ from urllib.parse import urlparse
 import aiohttp
 import aiomultiprocess
 
-# Directory for saved downloads
-OUTPUT_PATH = Path(__file__).parent / 'saved_download'
-
-parser = argparse.ArgumentParser(
+async def main():
+    '''
+        Run parallel download
+    '''
+    parser = argparse.ArgumentParser(
     description='''\
         Parallel Downloader.
         Download files from multiple urls in parallel.\
         '''
-)
-parser.add_argument('urls', type=str, nargs='+',
-                    help='Url from where the file can be downloaded')
-parser.add_argument('-s', '--stream', type=int, default=10, dest='session_num',
-                    help='number of stream to be generated per url. Each session download the total file size divided by the number of session',
-                    metavar='STREAM_COUNT')
-parser.add_argument('-b', '--buffer', type=int, default=1024*5, dest='buffer_size',
-                    help='buffer size per stream.How much data to be stored in memory before appended to temp file', metavar='buffer_size')
-args = parser.parse_args()
+    )
+    parser.add_argument('urls', type=str, nargs='+',
+                        help='Url from where the file can be downloaded')
+    parser.add_argument('-s', '--stream', type=int, default=10, dest='session_num',
+                        help='number of stream to be generated per url. Each session download the total file size divided by the number of session',
+                        metavar='STREAM_COUNT')
+    parser.add_argument('-b', '--buffer', type=int, default=1024*5, dest='buffer_size',
+                        help='buffer size per stream.How much data to be stored in memory before appended to temp file', metavar='BUFFER_SIZE')
+    # parser.add_argument('-m', '--multi_core', type=str, action='store_true', dest='multi_core',
+    #                     help='Enable each file download to use multiple core instead of one core per file')
+    parser.add_argument('-d', '--directory', type=Path, default=Path(__file__).parent / 'saved_download', dest='output_dir',
+                        help='directory where every downloaded file will be saved', metavar='DOWNLOAD_DIRECTORY')
 
-
-async def main(*args, **kwargs):
-    '''
-        Run parallel download
-    '''
-    OUTPUT_PATH.mkdir(
+    args = parser.parse_args()
+    args.output_dir.mkdir(
         parents=True, exist_ok=True)  # Create necessary directory
-    await parallel_download(**kwargs)
+    await parallel_download(**vars(args))
 
 
-async def parallel_download(urls, session_num=10, buffer_size=1024*5):
+async def parallel_download(urls, session_num=10, buffer_size=1024*5, output_dir=Path(__file__).parent / 'saved_download'):
     '''
         Download multiple files from urls simultaneously.
         Return filepaths of downloaded files as a list.
@@ -43,7 +43,7 @@ async def parallel_download(urls, session_num=10, buffer_size=1024*5):
     args = []
     for url in urls:
         file_url = urlparse(url)
-        args.append((file_url.geturl(), OUTPUT_PATH /
+        args.append((file_url.geturl(), output_dir /
                     Path(file_url.path).name, session_num, buffer_size))
     async with aiomultiprocess.Pool() as pool:
         saved_paths = await pool.starmap(concurrent_download, args)
@@ -119,4 +119,4 @@ async def _partial_download(url, start_byte, chunk_size, part_num, buffer_size):
     return save_path
 
 if __name__ == '__main__':
-    asyncio.run(main(**vars(args)))
+    asyncio.run(main())
