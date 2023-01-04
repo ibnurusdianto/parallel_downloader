@@ -24,8 +24,8 @@ async def main():
                         metavar='STREAM_COUNT')
     parser.add_argument('-b', '--buffer', type=int, default=1024*5, dest='buffer_size',
                         help='buffer size per stream.How much data to be stored in memory before appended to temp file', metavar='BUFFER_SIZE')
-    # parser.add_argument('-m', '--multi_core', type=str, action='store_true', dest='multi_core',
-    #                     help='Enable each file download to use multiple core instead of one core per file')
+    parser.add_argument('-m', '--multi_core',  action='store_true', dest='multi_core',
+                        help='Enable each file download to use multiple core instead of one core per file')
     parser.add_argument('-d', '--directory', type=Path, default=Path(__file__).parent / 'saved_download', dest='output_dir',
                         help='directory where every downloaded file will be saved', metavar='DOWNLOAD_DIRECTORY')
 
@@ -35,25 +35,26 @@ async def main():
     await parallel_download(**vars(args))
 
 
-async def parallel_download(urls, session_num=10, buffer_size=1024*5, output_dir=Path(__file__).parent / 'saved_download'):
+async def parallel_download(urls, session_num=10, buffer_size=1024*5, output_dir=Path(__file__).parent/'saved_download', multi_core=False):
     '''
         Download multiple files from urls simultaneously.
         Return filepaths of downloaded files as a list.
     '''
-    args = []
+    downloads = []
     for url in urls:
         file_url = urlparse(url)
-        args.append((file_url.geturl(), output_dir /
+        downloads.append((file_url.geturl(), output_dir /
                     Path(file_url.path).name, session_num, buffer_size))
     async with aiomultiprocess.Pool() as pool:
-        saved_paths = await pool.starmap(concurrent_download, args)
+        saved_paths = await pool.starmap(concurrent_download, downloads)
 
     return saved_paths
 
 
-async def concurrent_download(url, save_path, session_num, buffer_size):
+async def concurrent_download(url, save_path, session_num=10, buffer_size=1024*5, multi_core=False):
     '''
         Download a file asynchronously by dividing the file to multiple part and creating multiple stream for each part.
+        Write temp file to drive using multiple core for downloaded parts if multi_core = True.
         Return filepath of downloaded file as a string.
     '''
     print(f'Getting file information from {url}')
@@ -74,11 +75,15 @@ async def concurrent_download(url, save_path, session_num, buffer_size):
     chunk_size = file_length//(session_num-1)
 
     downloads = []
-
-    for part_num, start in enumerate(range(0, file_length, chunk_size), 1):
-        downloads.append(_partial_download(
-            url, start, chunk_size-1, part_num, buffer_size))
-    content = await asyncio.gather(*downloads)
+    if multi_core:
+        for part_num, start in enumerate(range(0, file_length, chunk_size), 1):
+            downloads.append(( url, start, chunk_size-1, part_num, buffer_size))
+        async with aiomultiprocess.Pool() as pool:
+            content = await pool.starmap(_partial_download, downloads)
+    else:
+        for part_num, start in enumerate(range(0, file_length, chunk_size), 1):
+            downloads.append(_partial_download(url, start, chunk_size-1, part_num, buffer_size))
+        content = await asyncio.gather(*downloads)
 
     print(f'Writing {save_path}')
     with open(save_path, 'wb') as f:
@@ -105,14 +110,8 @@ async def _partial_download(url, start_byte, chunk_size, part_num, buffer_size):
         async with session.get(url, headers=headers) as resp:
             # content = await resp.read()
             with open(save_path, 'wb') as f:
-                # print('opened')
-                downloaded = 0
                 async for buffer in resp.content.iter_chunked(buffer_size):
-                    downloaded += buffer_size
-                    # print(f'writing buffer')
-
                     f.write(buffer)
-                    # print(f'written buffer')
                     # print(f'({url}) {headers["Range"]} downloaded {downloaded} Byte(s)')
             print(f'({url}) finished download {headers["Range"]}')
 
