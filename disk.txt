@@ -85,8 +85,6 @@ Writing D:\DATA\Documents\PythonProjects\downloader\saved_download\game1.rar
 (http://127.0.0.1:5000/static/game1.rar) saved download
 Finished in 221.00348989999839 second(s)
 
-
-
 python downloader.py http://127.0.0.1:5000/static/game1.rar http://127.0.0.1:5000/static/game2.rar -b 102400 -s 20 -m
 Getting file information from http://127.0.0.1:5000/static/game1.rar
 Getting file information from http://127.0.0.1:5000/static/game2.rar
@@ -175,3 +173,93 @@ Writing D:\DATA\Documents\PythonProjects\downloader\saved_download\game1.rar
 Writing D:\DATA\Documents\PythonProjects\downloader\saved_download\game2.rar
 (http://127.0.0.1:5000/static/game2.rar) saved download
 Finished in 265.40680729999804 second(s)
+
+REMOVED MULTIPROCESSING
+PS D:\DATA\Documents\PythonProjects\downloader> python downloader.py http://127.0.0.1:5000/static/game1.rar http://127.0.0.1:5000/static/game2.rar -b 102400 -s 20
+Getting file information from http://127.0.0.1:5000/static/game1.rar
+Getting file information from http://127.0.0.1:5000/static/game2.rar
+(http://127.0.0.1:5000/static/game1.rar) starting download bytes=0-189093621
+(http://127.0.0.1:5000/static/game1.rar) starting download bytes=189093622-378187243
+(http://127.0.0.1:5000/static/game1.rar) starting download bytes=378187244-567280865
+(http://127.0.0.1:5000/static/game1.rar) starting download bytes=567280866-756374487
+(http://127.0.0.1:5000/static/game1.rar) starting download bytes=756374488-945468109
+(http://127.0.0.1:5000/static/game1.rar) starting download bytes=945468110-1134561731
+(http://127.0.0.1:5000/static/game1.rar) starting download bytes=1134561732-1323655353
+(http://127.0.0.1:5000/static/game1.rar) starting download bytes=1323655354-1512748975
+(http://127.0.0.1:5000/static/game1.rar) starting download bytes=1512748976-1701842597
+(http://127.0.0.1:5000/static/game1.rar) starting download bytes=1701842598-1890936219
+(http://127.0.0.1:5000/static/game1.rar) starting download bytes=1890936220-2080029841
+(http://127.0.0.1:5000/static/game1.rar) starting download bytes=2080029842-2269123463
+(http://127.0.0.1:5000/static/game1.rar) starting download bytes=2269123464-2458217085
+(http://127.0.0.1:5000/static/game1.rar) starting download bytes=2458217086-2647310707
+(http://127.0.0.1:5000/static/game1.rar) starting download bytes=2647310708-2836404329
+(http://127.0.0.1:5000/static/game1.rar) starting download bytes=2836404330-3025497951
+(http://127.0.0.1:5000/static/game1.rar) starting download bytes=3025497952-3214591573
+(http://127.0.0.1:5000/static/game1.rar) starting download bytes=3214591574-3403685195
+(http://127.0.0.1:5000/static/game1.rar) starting download bytes=3403685196-3592778817
+(http://127.0.0.1:5000/static/game1.rar) starting download bytes=3592778818-3781872439
+(http://127.0.0.1:5000/static/game2.rar) starting download bytes=0-189093621
+(http://127.0.0.1:5000/static/game2.rar) starting download bytes=189093622-378187243
+(http://127.0.0.1:5000/static/game2.rar) starting download bytes=378187244-567280865
+(http://127.0.0.1:5000/static/game2.rar) starting download bytes=567280866-756374487
+(http://127.0.0.1:5000/static/game2.rar) starting download bytes=756374488-945468109
+(http://127.0.0.1:5000/static/game2.rar) starting download bytes=945468110-1134561731
+(http://127.0.0.1:5000/static/game2.rar) starting download bytes=1134561732-1323655353
+(http://127.0.0.1:5000/static/game2.rar) starting download bytes=1323655354-1512748975
+(http://127.0.0.1:5000/static/game2.rar) starting download bytes=1512748976-1701842597
+(http://127.0.0.1:5000/static/game2.rar) starting download bytes=1701842598-1890936219
+(http://127.0.0.1:5000/static/game2.rar) starting download bytes=1890936220-2080029841
+(http://127.0.0.1:5000/static/game2.rar) starting download bytes=2080029842-2269123463
+(http://127.0.0.1:5000/static/game2.rar) starting download bytes=2269123464-2458217085
+(http://127.0.0.1:5000/static/game2.rar) starting download bytes=2458217086-2647310707
+(http://127.0.0.1:5000/static/game2.rar) starting download bytes=2647310708-2836404329
+(http://127.0.0.1:5000/static/game2.rar) starting download bytes=2836404330-3025497951
+(http://127.0.0.1:5000/static/game2.rar) starting download bytes=3025497952-3214591573
+(http://127.0.0.1:5000/static/game2.rar) starting download bytes=3214591574-3403685195
+(http://127.0.0.1:5000/static/game2.rar) starting download bytes=3403685196-3592778817
+(http://127.0.0.1:5000/static/game2.rar) starting download bytes=3592778818-3781872439
+(http://127.0.0.1:5000/static/game1.rar) finished download bytes=3592778818-3781872439
+(http://127.0.0.1:5000/static/game2.rar) finished download bytes=3592778818-3781872439
+(http://127.0.0.1:5000/static/game1.rar) finished download bytes=2080029842-2269123463
+(http://127.0.0.1:5000/static/game2.rar) finished download bytes=3025497952-3214591573
+(http://127.0.0.1:5000/static/game1.rar) finished download bytes=1701842598-1890936219
+(http://127.0.0.1:5000/static/game2.rar) finished download bytes=2269123464-2458217085
+(http://127.0.0.1:5000/static/game2.rar) finished download bytes=1890936220-2080029841
+(http://127.0.0.1:5000/static/game2.rar) finished download bytes=2458217086-2647310707
+(http://127.0.0.1:5000/static/game2.rar) finished download bytes=378187244-567280865
+(http://127.0.0.1:5000/static/game1.rar) finished download bytes=1134561732-1323655353
+(http://127.0.0.1:5000/static/game2.rar) finished download bytes=1512748976-1701842597
+(http://127.0.0.1:5000/static/game2.rar) finished download bytes=0-189093621
+(http://127.0.0.1:5000/static/game1.rar) finished download bytes=378187244-567280865
+(http://127.0.0.1:5000/static/game2.rar) finished download bytes=1323655354-1512748975
+(http://127.0.0.1:5000/static/game1.rar) finished download bytes=2836404330-3025497951
+(http://127.0.0.1:5000/static/game1.rar) finished download bytes=2269123464-2458217085
+(http://127.0.0.1:5000/static/game1.rar) finished download bytes=567280866-756374487
+(http://127.0.0.1:5000/static/game1.rar) finished download bytes=2458217086-2647310707
+(http://127.0.0.1:5000/static/game2.rar) finished download bytes=756374488-945468109
+(http://127.0.0.1:5000/static/game1.rar) finished download bytes=189093622-378187243
+(http://127.0.0.1:5000/static/game1.rar) finished download bytes=945468110-1134561731
+(http://127.0.0.1:5000/static/game2.rar) finished download bytes=2836404330-3025497951
+(http://127.0.0.1:5000/static/game1.rar) finished download bytes=1323655354-1512748975
+(http://127.0.0.1:5000/static/game2.rar) finished download bytes=1701842598-1890936219
+(http://127.0.0.1:5000/static/game2.rar) finished download bytes=3403685196-3592778817
+(http://127.0.0.1:5000/static/game1.rar) finished download bytes=0-189093621
+(http://127.0.0.1:5000/static/game1.rar) finished download bytes=1890936220-2080029841
+(http://127.0.0.1:5000/static/game2.rar) finished download bytes=1134561732-1323655353
+(http://127.0.0.1:5000/static/game1.rar) finished download bytes=3403685196-3592778817
+(http://127.0.0.1:5000/static/game1.rar) finished download bytes=756374488-945468109
+(http://127.0.0.1:5000/static/game2.rar) finished download bytes=2647310708-2836404329
+(http://127.0.0.1:5000/static/game2.rar) finished download bytes=189093622-378187243
+(http://127.0.0.1:5000/static/game2.rar) finished download bytes=945468110-1134561731
+(http://127.0.0.1:5000/static/game1.rar) finished download bytes=3025497952-3214591573
+(http://127.0.0.1:5000/static/game1.rar) finished download bytes=3214591574-3403685195
+(http://127.0.0.1:5000/static/game1.rar) finished download bytes=1512748976-1701842597
+(http://127.0.0.1:5000/static/game1.rar) finished download bytes=2647310708-2836404329
+Writing D:\DATA\Documents\PythonProjects\downloader\saved_download\game1.rar
+(http://127.0.0.1:5000/static/game1.rar) saved download
+(http://127.0.0.1:5000/static/game2.rar) finished download bytes=2080029842-2269123463
+(http://127.0.0.1:5000/static/game2.rar) finished download bytes=3214591574-3403685195
+(http://127.0.0.1:5000/static/game2.rar) finished download bytes=567280866-756374487
+Writing D:\DATA\Documents\PythonProjects\downloader\saved_download\game2.rar
+(http://127.0.0.1:5000/static/game2.rar) saved download
+Finished in 244.56338659999892 second(s)

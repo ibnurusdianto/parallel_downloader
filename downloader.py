@@ -6,7 +6,6 @@ from pathlib import Path
 from urllib.parse import urlparse
 
 import aiohttp
-import aiomultiprocess
 
 async def main():
     '''
@@ -25,8 +24,6 @@ async def main():
                         metavar='STREAM_COUNT')
     parser.add_argument('-b', '--buffer', type=int, default=1024*5, dest='buffer_size',
                         help='buffer size per stream.How much data to be stored in memory before appended to temp file', metavar='BUFFER_SIZE')
-    parser.add_argument('-m', '--multi_core',  action='store_true', dest='multi_core',
-                        help='Enable each file download to use multiple core instead of one core per file')
     parser.add_argument('-d', '--directory', type=Path, default=Path(__file__).parent / 'saved_download', dest='output_dir',
                         help='directory where every downloaded file will be saved', metavar='DOWNLOAD_DIRECTORY')
 
@@ -40,7 +37,7 @@ async def main():
     print(f'Finished in {end-start} second(s)')
 
 
-async def parallel_download(urls, session_num=10, buffer_size=1024*5, output_dir=Path(__file__).parent/'saved_download', multi_core=False):
+async def parallel_download(urls, session_num=10, buffer_size=1024*5, output_dir=Path(__file__).parent/'saved_download'):
     '''
         Download multiple files from urls simultaneously.
         Return filepaths of downloaded files as a list.
@@ -48,17 +45,15 @@ async def parallel_download(urls, session_num=10, buffer_size=1024*5, output_dir
     downloads = []
     for url in urls:
         file_url = urlparse(url)
-        downloads.append((file_url.geturl(), output_dir/Path(file_url.path).name, session_num, buffer_size, multi_core))
-    async with aiomultiprocess.Pool() as pool:
-        saved_paths = await pool.starmap(concurrent_download, downloads)
+        downloads.append(concurrent_download(file_url.geturl(), output_dir/Path(file_url.path).name, session_num, buffer_size))
+    saved_paths = await asyncio.gather(*downloads)
 
     return saved_paths
 
 
-async def concurrent_download(url, save_path, session_num=10, buffer_size=1024*5, multi_core=False):
+async def concurrent_download(url, save_path, session_num=10, buffer_size=1024*5):
     '''
         Download a file asynchronously by dividing the file to multiple part and creating multiple stream for each part.
-        Write temp file to drive using multiple core for downloaded parts if multi_core = True.
         Return filepath of downloaded file as a string.
     '''
     print(f'Getting file information from {url}')
@@ -79,15 +74,9 @@ async def concurrent_download(url, save_path, session_num=10, buffer_size=1024*5
     chunk_size = file_length//(session_num-1)
 
     downloads = []
-    if multi_core:
-        for part_num, start in enumerate(range(0, file_length, chunk_size), 1):
-            downloads.append(( url, start, chunk_size-1, part_num, buffer_size))
-        async with aiomultiprocess.Pool() as pool:
-            content = await pool.starmap(_partial_download, downloads)
-    else:
-        for part_num, start in enumerate(range(0, file_length, chunk_size), 1):
-            downloads.append(_partial_download(url, start, chunk_size-1, part_num, buffer_size))
-        content = await asyncio.gather(*downloads)
+    for part_num, start in enumerate(range(0, file_length, chunk_size), 1):
+        downloads.append(_partial_download(url, start, chunk_size-1, part_num, buffer_size))
+    content = await asyncio.gather(*downloads)
 
     print(f'Writing {save_path}')
     with open(save_path, 'wb') as f:
