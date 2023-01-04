@@ -95,7 +95,7 @@ async def concurrent_download(url, save_path, session_num=10, buffer_size=1024*5
         for part in content:
             with open(part, 'rb') as p:
                 f.write(p.read())
-        print(f'({_get_url_filename(url)}) saved download')
+    print(f'({_get_url_filename(url)}) saved download')
 
     return save_path
 
