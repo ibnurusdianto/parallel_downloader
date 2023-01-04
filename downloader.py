@@ -1,6 +1,7 @@
 import asyncio
 import tempfile
 import argparse
+import timeit
 from pathlib import Path
 from urllib.parse import urlparse
 
@@ -32,7 +33,11 @@ async def main():
     args = parser.parse_args()
     args.output_dir.mkdir(
         parents=True, exist_ok=True)  # Create necessary directory
+
+    start = timeit.default_timer()
     await parallel_download(**vars(args))
+    end = timeit.default_timer()
+    print(f'Finished in {end-start} second(s)')
 
 
 async def parallel_download(urls, session_num=10, buffer_size=1024*5, output_dir=Path(__file__).parent/'saved_download', multi_core=False):
@@ -43,8 +48,7 @@ async def parallel_download(urls, session_num=10, buffer_size=1024*5, output_dir
     downloads = []
     for url in urls:
         file_url = urlparse(url)
-        downloads.append((file_url.geturl(), output_dir /
-                    Path(file_url.path).name, session_num, buffer_size))
+        downloads.append((file_url.geturl(), output_dir/Path(file_url.path).name, session_num, buffer_size, multi_core))
     async with aiomultiprocess.Pool() as pool:
         saved_paths = await pool.starmap(concurrent_download, downloads)
 
@@ -103,16 +107,13 @@ async def _partial_download(url, start_byte, chunk_size, part_num, buffer_size):
     headers = {'Range': f'bytes={start_byte}-{start_byte+chunk_size}'}
     save_path = tempfile.gettempdir() + "/" + Path(urlparse(url).path).name + \
         f'.part{part_num}'
-    # print(save_path)
 
     print(f'({url}) starting download {headers["Range"]}')
     async with aiohttp.ClientSession() as session:
         async with session.get(url, headers=headers) as resp:
-            # content = await resp.read()
             with open(save_path, 'wb') as f:
                 async for buffer in resp.content.iter_chunked(buffer_size):
                     f.write(buffer)
-                    # print(f'({url}) {headers["Range"]} downloaded {downloaded} Byte(s)')
             print(f'({url}) finished download {headers["Range"]}')
 
     return save_path
