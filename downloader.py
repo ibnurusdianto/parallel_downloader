@@ -34,6 +34,7 @@ async def main():
     start = timeit.default_timer()
     await parallel_download(**vars(args))
     end = timeit.default_timer()
+    print()
     print(f'Finished in {end-start} second(s)')
 
 
@@ -78,12 +79,12 @@ async def concurrent_download(url, save_path, session_num=10, buffer_size=1024*5
         downloads.append(_partial_download(url, start, chunk_size-1, part_num, buffer_size))
     content = await asyncio.gather(*downloads)
 
-    print(f'Writing {save_path}')
+    print(f'Writing to {save_path}')
     with open(save_path, 'wb') as f:
         for part in content:
             with open(part, 'rb') as p:
                 f.write(p.read())
-        print(f'({url}) saved download')
+        print(f'({_get_url_filename(url)}) saved download')
 
     return save_path
 
@@ -97,15 +98,21 @@ async def _partial_download(url, start_byte, chunk_size, part_num, buffer_size):
     save_path = tempfile.gettempdir() + "/" + Path(urlparse(url).path).name + \
         f'.part{part_num}'
 
-    print(f'({url}) starting download {headers["Range"]}')
+    print(f'({_get_url_filename(url)}) starting download {headers["Range"]}')
     async with aiohttp.ClientSession() as session:
         async with session.get(url, headers=headers) as resp:
             with open(save_path, 'wb') as f:
                 async for buffer in resp.content.iter_chunked(buffer_size):
                     f.write(buffer)
-            print(f'({url}) finished download {headers["Range"]}')
+            print(f'({_get_url_filename(url)}) finished download {headers["Range"]}')
 
     return save_path
+
+def _get_url_filename(url):
+    url = urlparse(url)
+    filename = Path(url.path).name
+
+    return filename
 
 if __name__ == '__main__':
     asyncio.run(main())
